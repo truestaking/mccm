@@ -14,7 +14,7 @@ get_answer() {
       return 0;;
     [Nn]*)
       return 1;;
-    *) printf "%s" "Please enter 'y' or 'n' to continue: " >&2; read -n1 -r answer
+    *) echo; printf "%s" "Please enter 'y' or 'n' to continue: " >&2; read -n1 -r answer
     esac
   done
 }
@@ -34,7 +34,6 @@ cat << "EOF"
                                                           ###                                                                          ###  
 EOF
 echo; echo;
-
 cat << "EOF"
 
  
@@ -85,6 +84,7 @@ echo; echo
 ##### Is the validator/collator process still running? #####
 if get_answer "Do you want to be alerted if your validator/collator service stops running?"
     then 
+	echo;
         service=$(get_input "Please enter the service name you want to monitor? This is usually moonriver or moonbeam but we didn't see those running: ")
         if (sudo systemctl -q is-active $service)
             then MONITOR_PROCESS=$service
@@ -95,6 +95,8 @@ if get_answer "Do you want to be alerted if your validator/collator service stop
         fi
     else MONITOR_PROCESS='false'
 fi
+echo; echo
+
 ##### Is my CPU going nuts? #####
 if get_answer "Do you want to be alerted if your CPU load average is high?"
     then MONITOR_CPU='true'
@@ -106,6 +108,7 @@ if get_answer "Do you want to be alerted if your CPU load average is high?"
         fi
     else MONITOR_CPU='false'
 fi
+echo; echo
 
 ##### Are my NVME drives running hot? #####
 if get_answer "Do you want to be alerted for NVME drive high temperatures? "
@@ -150,20 +153,23 @@ if echo $MONITOR_NVME_HEAT,$MONITOR_NVME_LIFESPAN,$MONITOR_NVME_SELFTEST | grep 
                 sudo apt install smartmontools
                 echo; echo
         fi
+	echo;
 fi
 ##### ALert me via email? #####
 if get_answer "Do you want to receive collator alerts via email?" 
-    then EMAIL_USER=$(get_input "Please enter an email address for receiving alerts ")
+    then echo;
+    EMAIL_USER=$(get_input "Please enter an email address for receiving alerts ")
     else EMAIL_USER=''
 fi
 echo; echo
 ##### Alert me via TG #####
 TELEGRAM_USER="";
 if get_answer "Do you want to receive collator alerts via Telegram?"
-    then TELEGRAM_USER=$(get_input "Please enter your telegram username ")
-    else TELEGRAM_USER=''
+    then echo;
+    TELEGRAM_USER=$(get_input "Please enter your telegram username ")
     echo; echo "IMPORTANT: Please enter a telegram chat with our bot and message 'hi!' LINK: https://t.me/moonbeamccm_bot"
     read -p "After you say "hi" to the mccm bot press <enter>." echo; echo
+    else TELEGRAM_USER=''
 fi
 ##### check that we have at least one valide alerting mechanism #####
 if ! ( [[ $EMAIL_USER =~ [\@] ]] || [[ $TELEGRAM_USER =~ [a-zA-Z0-9] ]] )
@@ -186,7 +192,7 @@ else
    API_KEY=$(echo $API | cut -f 2 -d  " " )
 fi
 
-echo -n "Please do not exit the chat with our telegram bot. If you do, you will not be able to receive alerts about your system. If you leave the chat please run mccm_update_monitor.sh"; echo ; echo
+echo -n "Please do not exit the chat with our telegram bot. If you do, you will not be able to receive alerts about your system. If you leave the chat please run update_monitor.sh"; echo ; echo
 sudo mkdir -p /opt/moonbeam/blsm 2>&1 >/dev/null
 sudo echo -ne "##### MCCM user variables #####\n### Uncomment the next line to set your own peak_load_avg value or leave it undefined to use the MCCM default\n#peak_load_avg=\n\n##### END MCCM user variables #####\n\n#### DO NOT EDIT BELOW THIS LINE! #####\nAPI_KEY=$API_KEY\nMONITOR_PRODUCING_BLOCKS=$MONITOR_PRODUCING_BLOCKS\nMONITOR_IS_ALIVE=$MONITOR_IS_ALIVE\nMONITOR_PROCESS=$MONITOR_PROCESS\nMONITOR_CPU=$MONITOR_CPU\nMONITOR_DRIVE_SPACE=$MONITOR_DRIVE_SPACE\nMONITOR_NVME_HEAT=$MONITOR_NVME_HEAT\nMONITOR_NVME_LIFESPAN=$MONITOR_NVME_LIFESPAN\nMONITOR_NVME_SELFTEST=$MONITOR_NVME_SELFTEST\nEMAIL_USER=$EMAIL_USER\nTELEGRAM_USER=$TELEGRAM_USER\nCOLLATOR_ADDRESS=$COLLATOR_ADDRESS" > /opt/moonbeam/blsm/env
 
@@ -203,4 +209,7 @@ sudo systemctl enable blsm.timer
 echo
 echo "Starting blsm service"
 sudo systemctl start blsm.timer
+echo
+echo
+echo "You can stop monitoring and alerts at anytime by running update_monitor.sh"
 

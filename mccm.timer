@@ -1,0 +1,10 @@
+[Unit]
+Description="moonbeam collator community monitor timer"
+Requires=mccm.service
+
+[Timer]
+Unit=mccm.service
+OnCalendar=*:00/2:00
+
+[Install]
+WantedBy=timers.target

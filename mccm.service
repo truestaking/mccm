@@ -1,0 +1,10 @@
+[Unit]
+Description="Moonbeam Collator Community Monitor"
+Wants=mccm.timer
+
+[Service]
+Type=oneshot
+ExecStart=/opt/moonbeam/mccm/monitor.sh
+
+[Install]
+WantedBy=multi-user.target
