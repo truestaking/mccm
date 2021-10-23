@@ -223,9 +223,11 @@ sudo cp ./mccm.timer /etc/systemd/system/mccm.timer
 ## curl monitor.sh
 curl $REPO/monitor.sh -O
 sudo cp ./monitor.sh $DEST/
+sudo chmod +x $DEST/monitor.sh
 ## curl update_monitor.sh
 curl $REPO/update_monitor.sh -O
 sudo cp ./update_monitor.sh $DEST/
+sudo chmod +x $DEST/update_monitor.sh
 sudo systemctl enable mccm.timer
 echo
 echo "Starting mccm service"
