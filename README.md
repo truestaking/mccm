@@ -24,6 +24,6 @@ If you want to use a commercial service like iLert -- just create an email rule 
 
 Feedback is welcome, and we hope this benefits the Moonbeam Collator Community!
 
-To install: curl -s https://raw.githubusercontent.com/truestaking/mccm/development/setup.sh > setup.sh ; chmod +x ./setup.sh ; ./setup.sh
+To install: curl -s https://raw.githubusercontent.com/truestaking/mccm/main/setup.sh > setup.sh ; chmod +x ./setup.sh ; ./setup.sh
 
 
