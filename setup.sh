@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REPO='https://raw.githubusercontent.com/truestaking/mccm/development'
+REPO='https://raw.githubusercontent.com/truestaking/mccm/main'
 DEST='/opt/moonbeam/mccm'
 
 get_input() {
