@@ -39,4 +39,5 @@ Installing creates the folder structure:
 - env                     # Environment variables
 - monitor.sh              # Monitor script ran every 2 minutes by mccm.service, triggered by mccm.timer
 - update_monitor.sh       # Update script used to start/stop monitoring and change local and remote variables 
+- delete_account.sh       # Remove a machine account (requires server API key)
 ```

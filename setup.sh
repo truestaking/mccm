@@ -79,13 +79,6 @@ if get_answer "Do you want to be alerted if your node has failed to produce a bl
 fi
 echo
 
-##### Does my collator still have network connectivity? #####
-if get_answer "Do you want to be alerted if your collator goes offline or loses network connectivity? "
-    then MONITOR_IS_ALIVE='true'
-    else MONITOR_IS_ALIVE='false'
-fi
-echo; echo
-
 ##### Is the collator process still running? #####
 if get_answer "Do you want to be alerted if your collator service stops running?"
     then 
@@ -143,6 +136,7 @@ if get_answer "Do you want to be alerted when any drive reaches 90% capacity?"
     else MONITOR_DRIVE_SPACE='false'
 fi
 echo; echo
+
 ##### Do we need to install NVME utilities? #####
 if echo $MONITOR_NVME_HEAT,$MONITOR_NVME_LIFESPAN,$MONITOR_NVME_SELFTEST | grep -qi true
     then
@@ -167,6 +161,7 @@ if echo $MONITOR_NVME_HEAT,$MONITOR_NVME_LIFESPAN,$MONITOR_NVME_SELFTEST | grep 
         fi
 	echo;
 fi
+
 ##### ALert me via email? #####
 if get_answer "Do you want to receive collator alerts via email?" 
     then echo;
@@ -174,6 +169,7 @@ if get_answer "Do you want to receive collator alerts via email?"
     else EMAIL_USER=''
 fi
 echo
+
 ##### Alert me via TG #####
 TELEGRAM_USER="";
 if get_answer "Do you want to receive collator alerts via Telegram?"
@@ -183,7 +179,6 @@ if get_answer "Do you want to receive collator alerts via Telegram?"
     read -p "After you say "hi" to the mccm bot press <enter>."; echo
     else TELEGRAM_USER=''
 fi
-
 if ( echo $TELEGRAM_USER | grep -qi [A-Za-z0-9] ) 
     then echo -n "Please do not exit the chat with our telegram bot. If you do, you will not be able to receive alerts about your system. If you leave the chat please run update_monitor.sh"; echo ;
 fi
@@ -197,13 +192,10 @@ then
 fi
 
 ##### register with truestaking alert server #####
-
-API="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -d '{"chain": "movr", "address": "'$COLLATOR_ADDRESS'", "telegram_username": "'$TELEGRAM_USER'", "email_username": "'$EMAIL_USER'", "monitor": {"process": "'$MONITOR_PROCESS'", "nvme_heat": '$MONITOR_NVME_HEAT', "nvme_lifespan": '$MONITOR_NVME_LIFESPAN', "nvme_selftest": '$MONITOR_NVME_SELFTEST', "drive_space": '$MONITOR_DRIVE_SPACE', "cpu": '$MONITOR_CPU', "is_alive": '$MONITOR_IS_ALIVE', "producing_blocks": '$MONITOR_PRODUCING_BLOCKS'}}' https://monitor.truestaking.com/register)"
+API="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -d '{"chain": "movr", "address": "'$COLLATOR_ADDRESS'", "telegram_username": "'$TELEGRAM_USER'", "email_username": "'$EMAIL_USER'", "monitor": {"process": "'$MONITOR_PROCESS'", "nvme_heat": '$MONITOR_NVME_HEAT', "nvme_lifespan": '$MONITOR_NVME_LIFESPAN', "nvme_selftest": '$MONITOR_NVME_SELFTEST', "drive_space": '$MONITOR_DRIVE_SPACE', "cpu": '$MONITOR_CPU', "producing_blocks": '$MONITOR_PRODUCING_BLOCKS'}}' https://monitor.truestaking.com/register)"
 if ! [[ $API =~ "OK" ]]
 then
   logger "MCCM failed to obtain API KEY"
-  
-  #echo "Fatal Error: MCCM failed to obtain API KEY. Configuration aborted. Please ensure you have network connectivity to https://monitor.truestaking.com"
 	echo
   echo $API
   echo
@@ -212,10 +204,10 @@ else
    API_KEY=$(echo $API | cut -f 2 -d  " " )
 fi
 
- echo
 sudo mkdir -p $DEST 2>&1 >/dev/null
-sudo echo -ne "##### MCCM user variables #####\n### Uncomment the next line to set your own peak_load_avg value or leave it undefined to use the MCCM default\n#peak_load_avg=\n\n##### END MCCM user variables #####\n\n#### DO NOT EDIT BELOW THIS LINE! #####\n#### TO EDIT THESE VARIABLES, RUN update_monitor.sh ####\nAPI_KEY=$API_KEY\nMONITOR_PRODUCING_BLOCKS=$MONITOR_PRODUCING_BLOCKS\nMONITOR_IS_ALIVE=$MONITOR_IS_ALIVE\nMONITOR_PROCESS=$MONITOR_PROCESS\nMONITOR_CPU=$MONITOR_CPU\nMONITOR_DRIVE_SPACE=$MONITOR_DRIVE_SPACE\nMONITOR_NVME_HEAT=$MONITOR_NVME_HEAT\nMONITOR_NVME_LIFESPAN=$MONITOR_NVME_LIFESPAN\nMONITOR_NVME_SELFTEST=$MONITOR_NVME_SELFTEST\nEMAIL_USER=$EMAIL_USER\nTELEGRAM_USER=$TELEGRAM_USER\nCOLLATOR_ADDRESS=$COLLATOR_ADDRESS" > $DEST/env
+sudo echo -ne "##### MCCM user variables #####\n### Uncomment the next line to set your own peak_load_avg value or leave it undefined to use the MCCM default\n#peak_load_avg=\n\n##### END MCCM user variables #####\n\n#### DO NOT EDIT BELOW THIS LINE! #####\n#### TO EDIT THESE VARIABLES, RUN update_monitor.sh ####\n#### DO NOT COPY THIS FILE or edit the API KEY ####\nAPI_KEY=$API_KEY\nMONITOR_PRODUCING_BLOCKS=$MONITOR_PRODUCING_BLOCKS\nMONITOR_PROCESS=$MONITOR_PROCESS\nMONITOR_CPU=$MONITOR_CPU\nMONITOR_DRIVE_SPACE=$MONITOR_DRIVE_SPACE\nMONITOR_NVME_HEAT=$MONITOR_NVME_HEAT\nMONITOR_NVME_LIFESPAN=$MONITOR_NVME_LIFESPAN\nMONITOR_NVME_SELFTEST=$MONITOR_NVME_SELFTEST\nEMAIL_USER=$EMAIL_USER\nTELEGRAM_USER=$TELEGRAM_USER\nCOLLATOR_ADDRESS=$COLLATOR_ADDRESS" > $DEST/env
 
+echo
 echo "installing mccm.service"
 ## curl mccm.service
 curl $REPO/mccm.service -O 
@@ -241,4 +233,11 @@ echo
 echo "You can update your preferences or stop monitoring and alerts at anytime by running update_monitor.sh"
 echo ; echo
 echo "you will get a summary of your configuration and registration shortly via email or TG."
+echo; echo
+echo "##########################################"
+echo "In MCCM, every server has a unique API key."
+echo "Here is the API key for this server: $API_KEY"
+echo "You can also find it in $DEST/env"
+echo "WARNING: you need this key to update or remove this account, so please store it safely!"
+echo "##########################################"
 
