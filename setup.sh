@@ -59,8 +59,8 @@ Essential -> everything you need, nothing more
 Free -> backend alerting contributed by True Staking
 
 You will need:
-    1.  your node (validator/collator) public address
-    2.  your telegram user name or email address.
+    1.  your telegram user name or email address
+    2.  your collator public address (if you wish to monitor block production)
 
 EOF
 echo;echo
@@ -69,13 +69,15 @@ if ! get_answer "Do you wish to install and configure MCCM?"; then exit; fi
 
 echo;echo
 ##### Is my collator producing blocks? #####
-COLLATOR_ADDRESS=$(get_input "Please enter your node public address. Paste and press <ENTER> "); echo; echo
+COLLATOR_ADDRESS=''
 if get_answer "Do you want to be alerted if your node has failed to produce a block in the normal time window? "
     then MONITOR_PRODUCING_BLOCKS='true'
+    echo
+    COLLATOR_ADDRESS=$(get_input "Please enter your node public address. Paste and press <ENTER> ")
     else MONITOR_PRODUCING_BLOCKS='false'
+    echo
 fi
-
-echo; echo
+echo
 
 ##### Does my collator still have network connectivity? #####
 if get_answer "Do you want to be alerted if your collator goes offline or loses network connectivity? "
@@ -87,7 +89,7 @@ echo; echo
 ##### Is the collator process still running? #####
 if get_answer "Do you want to be alerted if your collator service stops running?"
     then 
-	echo; echo
+	echo
         service=$(get_input "Please enter the service name you want to monitor? This is usually moonriver or moonbeam")
         if (sudo systemctl -q is-active $service)
             then MONITOR_PROCESS=$service
@@ -97,6 +99,7 @@ if get_answer "Do you want to be alerted if your collator service stops running?
                 exit;exit
         fi
     else MONITOR_PROCESS='false'
+    echo
 fi
 echo
 
