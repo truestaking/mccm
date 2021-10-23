@@ -68,7 +68,7 @@ echo;echo
 if ! get_answer "Do you wish to install and configure MCCM?"; then exit; fi
 
 echo;echo
-##### Is My validator/collator producing blocks? #####
+##### Is my collator producing blocks? #####
 COLLATOR_ADDRESS=$(get_input "Please enter your node public address. Paste and press <ENTER> "); echo; echo
 if get_answer "Do you want to be alerted if your node has failed to produce a block in the normal time window? "
     then MONITOR_PRODUCING_BLOCKS='true'
@@ -77,14 +77,14 @@ fi
 
 echo; echo
 
-##### Does my validator/collator still have network connectivity? #####
+##### Does my collator still have network connectivity? #####
 if get_answer "Do you want to be alerted if your collator goes offline or loses network connectivity? "
     then MONITOR_IS_ALIVE='true'
     else MONITOR_IS_ALIVE='false'
 fi
 echo; echo
 
-##### Is the validator/collator process still running? #####
+##### Is the collator process still running? #####
 if get_answer "Do you want to be alerted if your validator/collator service stops running?"
     then 
 	echo; echo
@@ -185,7 +185,7 @@ if ( echo $TELEGRAM_USER | grep -qi [A-Za-z0-9] )
     then echo -n "Please do not exit the chat with our telegram bot. If you do, you will not be able to receive alerts about your system. If you leave the chat please run update_monitor.sh"; echo ;
 fi
 
-##### check that we have at least one valide alerting mechanism #####
+##### check that we have at least one valid alerting mechanism #####
 if ! ( [[ $EMAIL_USER =~ [\@] ]] || [[ $TELEGRAM_USER =~ [a-zA-Z0-9] ]] )
 then
   logger "MCCM requires either email or telegram for alerting, bailing out of setup."  
