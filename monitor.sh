@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /opt/moonbeam/monitor
+cd /opt/moonbeam/mccm
 FILE=./env
 
 if ! test -f "$FILE"
@@ -28,20 +28,20 @@ cpu_load_avg=$(cat /proc/loadavg | awk '{print $1}')
 alert_type=""
 alert_message=""
 
-#generate_data(){
-#cat << EOF
-#{
-#"type": "$alert_type",
-#"to_send": "$alert_message"
-#}
-#EOF
-#}
+generate_data(){
+cat << EOF
+{
+"type": "$alert_type",
+"to_send": "$alert_message"
+}
+EOF
+}
 
 send_data() {
     echo "$alert_type"
     echo "$alert_message"
 
-    sent="$('/usr/bin/curl' -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d "$(generate_data)"  https://monitor.truestaking.com/alert)" 
+    sent=$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d "$(generate_data)"  https://monitor.truestaking.com/alert) 
     if ! [[ $sent =~ "OK" ]]
     then logger "MCCM failed to send alert message to monitor.truestaking.com: $sent"
     fi
@@ -68,7 +68,7 @@ fi
 if [[ $MONITOR_IS_ALIVE =~ "true" ]]
 then
 	logger "MCCM SENDING IS ALIVE MESSAGE"
-	sent="$('/usr/bin/curl' -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{}' https://monitor.truestaking.com/is_alive)" 
+	sent=$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{}' https://monitor.truestaking.com/is_alive) 
 	if ! [[ $sent =~ "OK" ]]
 	then logger "MCCM failed to send heartbeat message to monitor.truestaking.com: $sent"
         fi
@@ -155,7 +155,7 @@ then
     then 
         alert_message="$HOST drive space warning"
         send_data
-        logger "MCCM disk space warning - use df -h to see available disk space""
+        logger "MCCM disk space warning - use df -h to see available disk space"
     fi
 fi
 

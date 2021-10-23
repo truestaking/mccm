@@ -1,5 +1,8 @@
 #!/bin/bash
 
+REPO='https://raw.githubusercontent.com/truestaking/mccm/development'
+DEST='/opt/moonbeam/mccm'
+
 get_input() {
   printf "$1: " "$2" >&2; read -r answer
   if [ -z "$answer" ]; then echo "$2"; else echo "$answer"; fi
@@ -36,10 +39,10 @@ EOF
 echo; echo;
 cat << "EOF"
 
+
  
 
-BASIC LINUX SERVER MONITORING
-
+Moonbeam Collator Community Monitoring
 
 Basic -> just the stuff you need near time alerting on
 
@@ -84,8 +87,8 @@ echo; echo
 ##### Is the validator/collator process still running? #####
 if get_answer "Do you want to be alerted if your validator/collator service stops running?"
     then 
-	echo;
-        service=$(get_input "Please enter the service name you want to monitor? This is usually moonriver or moonbeam but we didn't see those running: ")
+	echo; echo
+        service=$(get_input "Please enter the service name you want to monitor? This is usually moonriver or moonbeam but we didn't see those running")
         if (sudo systemctl -q is-active $service)
             then MONITOR_PROCESS=$service
             else 
@@ -95,7 +98,7 @@ if get_answer "Do you want to be alerted if your validator/collator service stop
         fi
     else MONITOR_PROCESS='false'
 fi
-echo; echo
+echo
 
 ##### Is my CPU going nuts? #####
 if get_answer "Do you want to be alerted if your CPU load average is high?"
@@ -144,14 +147,20 @@ if echo $MONITOR_NVME_HEAT,$MONITOR_NVME_LIFESPAN,$MONITOR_NVME_SELFTEST | grep 
         if ! sudo apt list --installed 2>/dev/null | grep -qi nvme-cli
             then
                 echo "installing nvme-cli.."
-                sudo apt install nvme-cli
+                if ! sudo apt install nvme-cli
+                then echo;
+                    echo "MCCM setup failed to install nvme-cli. Please manually install nvme-cli and rerun setup."
                 echo; echo
+                fi
         fi
         if ! sudo apt list --installed 2>/dev/null | grep -qi smartmontools
             then
                 echo "installing smartmontools..."
-                sudo apt install smartmontools
-                echo; echo
+                if ! sudo apt install smartmontools
+                then echo
+                    echo "MCCM setup failed to install smartmontools. Please manually install nvme-cli and rerun setup."
+                    echo; echo
+                fi
         fi
 	echo;
 fi
@@ -161,21 +170,26 @@ if get_answer "Do you want to receive collator alerts via email?"
     EMAIL_USER=$(get_input "Please enter an email address for receiving alerts ")
     else EMAIL_USER=''
 fi
-echo; echo
+echo
 ##### Alert me via TG #####
 TELEGRAM_USER="";
 if get_answer "Do you want to receive collator alerts via Telegram?"
     then echo;
     TELEGRAM_USER=$(get_input "Please enter your telegram username ")
-    echo; echo "IMPORTANT: Please enter a telegram chat with our bot and message 'hi!' LINK: https://t.me/moonbeamccm_bot"
-    read -p "After you say "hi" to the mccm bot press <enter>." echo; echo
+    echo "IMPORTANT: Please enter a telegram chat with our bot and message 'hi!' LINK: https://t.me/moonbeamccm_bot"
+    read -p "After you say "hi" to the mccm bot press <enter>."; echo
     else TELEGRAM_USER=''
 fi
+
+if ( echo $TELEGRAM_USER | grep -qi [A-Za-z0-9] ) 
+    then echo -n "Please do not exit the chat with our telegram bot. If you do, you will not be able to receive alerts about your system. If you leave the chat please run update_monitor.sh"; echo ;
+fi
+
 ##### check that we have at least one valide alerting mechanism #####
 if ! ( [[ $EMAIL_USER =~ [\@] ]] || [[ $TELEGRAM_USER =~ [a-zA-Z0-9] ]] )
 then
-  logger "BLSM requires either email or telegram for alerting, bailing out of setup."  
-  echo "BLSM requires either email or telegram for alerting. Rerun setup to provide email or telegram alerting.Bailing out."
+  logger "MCCM requires either email or telegram for alerting, bailing out of setup."  
+  echo "MCCM requires either email or telegram for alerting. Rerun setup to provide email or telegram alerting.Bailing out."
   exit
 fi
 
@@ -184,7 +198,8 @@ fi
 API="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -d '{"chain": "movr", "address": "'$COLLATOR_ADDRESS'", "telegram_username": "'$TELEGRAM_USER'", "email_username": "'$EMAIL_USER'", "monitor": {"process": "'$MONITOR_PROCESS'", "nvme_heat": '$MONITOR_NVME_HEAT', "nvme_lifespan": '$MONITOR_NVME_LIFESPAN', "nvme_selftest": '$MONITOR_NVME_SELFTEST', "drive_space": '$MONITOR_DRIVE_SPACE', "cpu": '$MONITOR_CPU', "is_alive": '$MONITOR_IS_ALIVE', "producing_blocks": '$MONITOR_PRODUCING_BLOCKS'}}' https://monitor.truestaking.com/register)"
 if ! [[ $API =~ "OK" ]]
 then
-  logger "BLSM failed to obtain API KEY"
+  logger "MCCM failed to obtain API KEY"
+  
   #echo "Fatal Error: MCCM failed to obtain API KEY. Configuration aborted. Please ensure you have network connectivity to https://monitor.truestaking.com"
   echo $API
   exit
@@ -192,24 +207,31 @@ else
    API_KEY=$(echo $API | cut -f 2 -d  " " )
 fi
 
-echo -n "Please do not exit the chat with our telegram bot. If you do, you will not be able to receive alerts about your system. If you leave the chat please run update_monitor.sh"; echo ; echo
-sudo mkdir -p /opt/moonbeam/blsm 2>&1 >/dev/null
-sudo echo -ne "##### MCCM user variables #####\n### Uncomment the next line to set your own peak_load_avg value or leave it undefined to use the MCCM default\n#peak_load_avg=\n\n##### END MCCM user variables #####\n\n#### DO NOT EDIT BELOW THIS LINE! #####\nAPI_KEY=$API_KEY\nMONITOR_PRODUCING_BLOCKS=$MONITOR_PRODUCING_BLOCKS\nMONITOR_IS_ALIVE=$MONITOR_IS_ALIVE\nMONITOR_PROCESS=$MONITOR_PROCESS\nMONITOR_CPU=$MONITOR_CPU\nMONITOR_DRIVE_SPACE=$MONITOR_DRIVE_SPACE\nMONITOR_NVME_HEAT=$MONITOR_NVME_HEAT\nMONITOR_NVME_LIFESPAN=$MONITOR_NVME_LIFESPAN\nMONITOR_NVME_SELFTEST=$MONITOR_NVME_SELFTEST\nEMAIL_USER=$EMAIL_USER\nTELEGRAM_USER=$TELEGRAM_USER\nCOLLATOR_ADDRESS=$COLLATOR_ADDRESS" > /opt/moonbeam/blsm/env
+ echo
+sudo mkdir -p $DEST 2>&1 >/dev/null
+sudo echo -ne "##### MCCM user variables #####\n### Uncomment the next line to set your own peak_load_avg value or leave it undefined to use the MCCM default\n#peak_load_avg=\n\n##### END MCCM user variables #####\n\n#### DO NOT EDIT BELOW THIS LINE! #####\nAPI_KEY=$API_KEY\nMONITOR_PRODUCING_BLOCKS=$MONITOR_PRODUCING_BLOCKS\nMONITOR_IS_ALIVE=$MONITOR_IS_ALIVE\nMONITOR_PROCESS=$MONITOR_PROCESS\nMONITOR_CPU=$MONITOR_CPU\nMONITOR_DRIVE_SPACE=$MONITOR_DRIVE_SPACE\nMONITOR_NVME_HEAT=$MONITOR_NVME_HEAT\nMONITOR_NVME_LIFESPAN=$MONITOR_NVME_LIFESPAN\nMONITOR_NVME_SELFTEST=$MONITOR_NVME_SELFTEST\nEMAIL_USER=$EMAIL_USER\nTELEGRAM_USER=$TELEGRAM_USER\nCOLLATOR_ADDRESS=$COLLATOR_ADDRESS" > $DEST/env
 
-echo "installing blsm.service"
+echo "installing mccm.service"
 ## curl mccm.service
-sudo cp ./blsm.service /etc/systemd/system/blsm.service
-sudo systemctl enable blsm.service
-echo "installing blsm.timer"
+#curl $REPO/mccm.service -O 
+sudo cp ./mccm.service /etc/systemd/system/mccm.service
+sudo systemctl enable mccm.service
+echo "installing mccm.timer"
 ## curl mccm.timer
-sudo cp ./blsm.timer /etc/systemd/system/blsm.timer
-sudo cp ./monitor.sh /opt/moonbeam/blsm/
-sudo cp ./update_monitor.sh /opt/moonbeam/blsm/
-sudo systemctl enable blsm.timer
+#curl $REPO/mccm.timer
+sudo cp ./mccm.timer /etc/systemd/system/mccm.timer
+## curl monitor.sh
+#curl $REPO/monitor.sh -O
+sudo cp ./monitor.sh $DEST/
+## curl update_monitor.sh
+#curl $REPO/update_monitor.sh -O
+sudo cp ./update_monitor.sh $DEST/
+sudo systemctl enable mccm.timer
 echo
-echo "Starting blsm service"
-sudo systemctl start blsm.timer
+echo "Starting mccm service"
+sudo systemctl start mccm.timer
 echo
-echo
-echo "You can stop monitoring and alerts at anytime by running update_monitor.sh"
+echo "You can update your preferences or stop monitoring and alerts at anytime by running update_monitor.sh"
+echo ; echo
+echo "you will get a summary of your configuration and registration shortly via email or TG."
 
