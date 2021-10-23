@@ -201,7 +201,9 @@ then
   logger "MCCM failed to obtain API KEY"
   
   #echo "Fatal Error: MCCM failed to obtain API KEY. Configuration aborted. Please ensure you have network connectivity to https://monitor.truestaking.com"
+	echo
   echo $API
+  echo
   exit
 else
    API_KEY=$(echo $API | cut -f 2 -d  " " )

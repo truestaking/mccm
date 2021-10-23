@@ -53,15 +53,17 @@ then
   RESP="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{"active": "false"}' https://monitor.truestaking.com/update)"
    if [[ $RESP =~ "OK" ]]
     then
-        echo "Success! MCCM alert reporting has been paused. Please run update_monitor.sh again when you are ready to resume."
-        sudo systemctl stop mccm.timer
-        echo
-        exit;
-    else 
+        if sudo systemctl stop mccm.timer
+        then echo "Success! MCCM alert reporting has been paused. Please run update_monitor.sh again when you are ready to resume."
+        else echo "failed to stop mccm.timer. Possibly it is not installed, or it was already stopped/disabled." 
+    	fi
+    else
         echo "error was: $RESP"
         exit; exit
     fi
 fi
+
+if ! get_answer "Do you wish to make any other adjustments to your monitoring?"; then exit; fi
 
 cat << "EOF"
 
@@ -83,11 +85,9 @@ Essential -> everything you need, nothing more
 Free -> backend alerting contributed by True Staking (we use it for our own servers, we might as well share)
 
 EOF
-echo;echo
-
-if ! get_answer "Do you wish to configure MCCM?"; then exit; fi
 
 echo;echo
+
 ##### Is My validator/collator producing blocks? #####
 if get_answer "Do you want to be alerted if your node has failed to produce a block in the normal time window? "
     then MONITOR_PRODUCING_BLOCKS='true'
@@ -104,13 +104,13 @@ fi
 echo; echo
 
 ##### Is the validator/collator process still running? #####
-if get_answer "Do you want to be alerted if your validator/collator service stops running?"
-    then 
+if get_answer "Do you want to be alerted if your collator service stops running?"
+    then
 	echo; echo
         service=$(get_input "Please enter the service name you want to monitor? This is usually moonriver or moonbeam but we didn't see those running")
         if (sudo systemctl -q is-active $service)
             then MONITOR_PROCESS=$service
-            else 
+            else
                 MONITOR_PROCESS='false'
                 echo "\"systemctl is-active $service\" failed, please check service name and rerun setup."
                 exit;exit
