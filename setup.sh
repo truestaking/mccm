@@ -210,20 +210,22 @@ sudo echo -ne "##### MCCM user variables #####\n### Uncomment the next line to s
 echo
 echo "installing mccm.service"
 ## curl mccm.service
-curl $REPO/mccm.service -O 
+sudo curl $REPO/mccm.service -O 
 sudo cp ./mccm.service /etc/systemd/system/mccm.service
 sudo systemctl enable mccm.service
 echo "installing mccm.timer"
 ## curl mccm.timer
-curl $REPO/mccm.timer -O
+sudo curl $REPO/mccm.timer -O
 sudo cp ./mccm.timer /etc/systemd/system/mccm.timer
 ## curl monitor.sh
-curl $REPO/monitor.sh -O
+sudo curl $REPO/monitor.sh -O
 sudo cp ./monitor.sh $DEST/
 sudo chmod +x $DEST/monitor.sh
 ## curl update_monitor.sh
-curl $REPO/update_monitor.sh -O
+sudo curl $REPO/update_monitor.sh -O
 sudo cp ./update_monitor.sh $DEST/
+sudo chmod +x $DEST/update_monitor.sh
+sudo curl $REPO/delete_account.sh -O
 sudo chmod +x $DEST/update_monitor.sh
 sudo systemctl enable mccm.timer
 echo

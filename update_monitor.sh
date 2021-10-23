@@ -48,20 +48,35 @@ fi
 
 source $DEST/env
 
-if get_answer "Do you want to pause MCCM alerts? "
-then 
+IS_ALIVE=1
+read -n1 -sp "Do you want to pause or resume MCCM alerts? p for pause, r for resume [p/r]: " pq ;
+echo
+if [[ $pq =~ "p" ]]
+then
   RESP="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{"active": "false"}' https://monitor.truestaking.com/update)"
-   if [[ $RESP =~ "OK" ]]
+  if [[ $RESP =~ "OK" ]]
     then
-        if sudo systemctl stop mccm.timer
-        then echo "Success! MCCM alert reporting has been paused. Please run update_monitor.sh again when you are ready to resume."
+    IS_ALIVE=0
+    echo "Alerts from our server have been paused"
+      if sudo systemctl stop mccm.timer
+        then echo "mccm.timer has been paused"
         else echo "failed to stop mccm.timer. Possibly it is not installed, or it was already stopped/disabled." 
-    	fi
-    else
-        echo "error was: $RESP"
-        exit; exit
-    fi
+      fi
+  else
+    echo "Server side error: $RESP"
+    exit; exit
+  fi
+else
+  RESP="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{"active": "true"}' https://monitor.truestaking.com/update)"
+  if [[ $RESP =~ "OK" ]]
+    then
+    echo "Monitoring has been resumed"
+  else
+    echo "Server side error: $RESP"
+    exit; exit
+  fi
 fi
+echo
 
 if ! get_answer "Do you wish to make any other adjustments to your monitoring?"; then exit; fi
 
@@ -225,4 +240,10 @@ echo
 sudo mkdir -p $DEST 2>&1 >/dev/null
 sudo echo -ne "##### MCCM user variables #####\n### Uncomment the next line to set your own peak_load_avg value or leave it undefined to use the MCCM default\n#peak_load_avg=\n\n##### END MCCM user variables #####\n\n#### DO NOT EDIT BELOW THIS LINE! #####\nAPI_KEY=$API_KEY\nMONITOR_PRODUCING_BLOCKS=$MONITOR_PRODUCING_BLOCKS\nMONITOR_IS_ALIVE=$MONITOR_IS_ALIVE\nMONITOR_PROCESS=$MONITOR_PROCESS\nMONITOR_CPU=$MONITOR_CPU\nMONITOR_DRIVE_SPACE=$MONITOR_DRIVE_SPACE\nMONITOR_NVME_HEAT=$MONITOR_NVME_HEAT\nMONITOR_NVME_LIFESPAN=$MONITOR_NVME_LIFESPAN\nMONITOR_NVME_SELFTEST=$MONITOR_NVME_SELFTEST\nEMAIL_USER=$EMAIL_USER\nTELEGRAM_USER=$TELEGRAM_USER\nCOLLATOR_ADDRESS=$COLLATOR_ADDRESS" > $DEST/env
 
-
+if ! IS_ALIVE
+then
+  echo
+  echo "#############################"
+  echo "Warning alerts are currently paused, to resume alerts run update_monitor.sh"
+  echo "#############################"
+fi
