@@ -1,5 +1,5 @@
 # Moonbeam Collator Community Monitoring
-brought to you by True Staking
+brought to you by [True Staking](https://truestaking.com)
 
 ## What is it?
 
