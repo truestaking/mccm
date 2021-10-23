@@ -53,7 +53,7 @@ then
   RESP="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{"active": "false"}' https://monitor.truestaking.com/update)"
    if [[ $RESP =~ "OK" ]]
     then
-        echo "Success! MCCM alert reporting has been paused. Please run update.sh again when you are ready to resume."
+        echo "Success! MCCM alert reporting has been paused. Please run update_monitor.sh again when you are ready to resume."
         sudo systemctl stop mccm.timer
         echo
         exit;
