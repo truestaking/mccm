@@ -1,7 +1,7 @@
-#Moonbeam Collator Community Monitoring
+# Moonbeam Collator Community Monitoring
 brought to you by True Staking
 
-##What is it?
+## What is it?
 
 Just basic Linux server monitoring. Sometimes, the simplest solution is the best solution. For all the trends, graphs, metrics, statistics you might need, there is Prometheus. For resting easy and knowing your server has no issues, there is MCCM. We already maintain the solution and use it ourselves, so we might as well share it with the community.
 
@@ -23,7 +23,7 @@ If you want to use a commercial service like iLert -- just create an email rule 
 
 Feedback is welcome, and we hope this benefits the Moonbeam Collator Community!
 
-##Install 
+## Install 
 
 To install, run:
 ```
