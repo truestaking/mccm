@@ -49,9 +49,9 @@ fi
 source $DEST/env
 
 IS_ALIVE=1
-read -n1 -sp "Do you want to pause or resume MCCM alerts? p for pause, r for resume [p/r]: " pq ;
+read -n1 -sp "Do you want to pause or resume MCCM alerts? p for pause, r for resume, n for no [p/r/n]: " pqn ;
 echo
-if [[ $pq =~ "p" ]]
+if [[ $pqn =~ "p" ]]
 then
   RESP="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{"active": "false"}' https://monitor.truestaking.com/update)"
   if [[ $RESP =~ "OK" ]]
@@ -66,7 +66,8 @@ then
     echo "Server side error: $RESP"
     exit; exit
   fi
-else
+elif [[ $pqn =~ "r" ]]
+then
   RESP="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{"active": "true"}' https://monitor.truestaking.com/update)"
   if [[ $RESP =~ "OK" ]]
     then
@@ -79,6 +80,7 @@ fi
 echo
 
 if ! get_answer "Do you wish to make any other adjustments to your monitoring?"; then exit; fi
+echo
 
 cat << "EOF"
 
@@ -100,29 +102,24 @@ Essential -> everything you need, nothing more
 Free -> backend alerting contributed by True Staking (we use it for our own servers, we might as well share)
 
 EOF
-
 echo;echo
 
-##### Is My validator/collator producing blocks? #####
+##### Is my collator producing blocks? #####
+COLLATOR_ADDRESS=''
 if get_answer "Do you want to be alerted if your node has failed to produce a block in the normal time window? "
     then MONITOR_PRODUCING_BLOCKS='true'
+    echo
+    COLLATOR_ADDRESS=$(get_input "Please enter your node public address. Paste and press <ENTER> ")
     else MONITOR_PRODUCING_BLOCKS='false'
+    echo
 fi
+echo
 
-echo; echo
-
-##### Does my validator/collator still have network connectivity? #####
-if get_answer "Do you want to be alerted if your collator goes offline or loses network connectivity? "
-    then MONITOR_IS_ALIVE='true'
-    else MONITOR_IS_ALIVE='false'
-fi
-echo; echo
-
-##### Is the validator/collator process still running? #####
+##### Is the collator process still running? #####
 if get_answer "Do you want to be alerted if your collator service stops running?"
-    then
-	echo; echo
-        service=$(get_input "Please enter the service name you want to monitor? This is usually moonriver or moonbeam but we didn't see those running")
+    then 
+	echo
+        service=$(get_input "Please enter the service name you want to monitor? This is usually moonriver or moonbeam")
         if (sudo systemctl -q is-active $service)
             then MONITOR_PROCESS=$service
             else
@@ -131,8 +128,9 @@ if get_answer "Do you want to be alerted if your collator service stops running?
                 exit;exit
         fi
     else MONITOR_PROCESS='false'
+    echo
 fi
-echo; echo
+echo
 
 ##### Is my CPU going nuts? #####
 if get_answer "Do you want to be alerted if your CPU load average is high?"
@@ -174,6 +172,7 @@ if get_answer "Do you want to be alerted when any drive reaches 90% capacity?"
     else MONITOR_DRIVE_SPACE='false'
 fi
 echo; echo
+
 ##### Do we need to install NVME utilities? #####
 if echo $MONITOR_NVME_HEAT,$MONITOR_NVME_LIFESPAN,$MONITOR_NVME_SELFTEST | grep -qi true
     then
@@ -198,6 +197,7 @@ if echo $MONITOR_NVME_HEAT,$MONITOR_NVME_LIFESPAN,$MONITOR_NVME_SELFTEST | grep 
         fi
 	echo;
 fi
+
 ##### ALert me via email? #####
 if get_answer "Do you want to receive collator alerts via email?" 
     then echo;
@@ -205,6 +205,7 @@ if get_answer "Do you want to receive collator alerts via email?"
     else EMAIL_USER=''
 fi
 echo
+
 ##### Alert me via TG #####
 TELEGRAM_USER="";
 if get_answer "Do you want to receive collator alerts via Telegram?"
@@ -214,12 +215,11 @@ if get_answer "Do you want to receive collator alerts via Telegram?"
     read -p "After you say "hi" to the mccm bot press <enter>."; echo
     else TELEGRAM_USER=''
 fi
-
 if ( echo $TELEGRAM_USER | grep -qi [A-Za-z0-9] ) 
     then echo -n "Please do not exit the chat with our telegram bot. If you do, you will not be able to receive alerts about your system. If you leave the chat please run update_monitor.sh"; echo ;
 fi
 
-##### check that we have at least one valide alerting mechanism #####
+##### check that we have at least one valid alerting mechanism #####
 if ! ( [[ $EMAIL_USER =~ [\@] ]] || [[ $TELEGRAM_USER =~ [a-zA-Z0-9] ]] )
 then
   logger "MCCM requires either email or telegram for alerting, bailing out of setup."  
@@ -228,8 +228,7 @@ then
 fi
 
 ##### register with truestaking alert server #####
-
-RESP="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{"active": "true", "chain": "movr", "address": "'$COLLATOR_ADDRESS'", "telegram_username": "'$TELEGRAM_USER'", "email_username": "'$EMAIL_USER'", "monitor": {"process": "'$MONITOR_PROCESS'", "nvme_heat": '$MONITOR_NVME_HEAT', "nvme_lifespan": '$MONITOR_NVME_LIFESPAN', "nvme_selftest": '$MONITOR_NVME_SELFTEST', "drive_space": '$MONITOR_DRIVE_SPACE', "cpu": '$MONITOR_CPU', "is_alive": '$MONITOR_IS_ALIVE', "producing_blocks": '$MONITOR_PRODUCING_BLOCKS'}}' https://monitor.truestaking.com/update)"
+RESP="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{"chain": "movr", "address": "'$COLLATOR_ADDRESS'", "telegram_username": "'$TELEGRAM_USER'", "email_username": "'$EMAIL_USER'", "monitor": {"process": "'$MONITOR_PROCESS'", "nvme_heat": '$MONITOR_NVME_HEAT', "nvme_lifespan": '$MONITOR_NVME_LIFESPAN', "nvme_selftest": '$MONITOR_NVME_SELFTEST', "drive_space": '$MONITOR_DRIVE_SPACE', "cpu": '$MONITOR_CPU', "producing_blocks": '$MONITOR_PRODUCING_BLOCKS'}}' https://monitor.truestaking.com/update)"
 if ! [[ $RESP =~ "OK" ]]
 then 
     echo "We encountered an error: $RESP "
@@ -240,7 +239,7 @@ echo
 sudo mkdir -p $DEST 2>&1 >/dev/null
 sudo echo -ne "##### MCCM user variables #####\n### Uncomment the next line to set your own peak_load_avg value or leave it undefined to use the MCCM default\n#peak_load_avg=\n\n##### END MCCM user variables #####\n\n#### DO NOT EDIT BELOW THIS LINE! #####\nAPI_KEY=$API_KEY\nMONITOR_PRODUCING_BLOCKS=$MONITOR_PRODUCING_BLOCKS\nMONITOR_IS_ALIVE=$MONITOR_IS_ALIVE\nMONITOR_PROCESS=$MONITOR_PROCESS\nMONITOR_CPU=$MONITOR_CPU\nMONITOR_DRIVE_SPACE=$MONITOR_DRIVE_SPACE\nMONITOR_NVME_HEAT=$MONITOR_NVME_HEAT\nMONITOR_NVME_LIFESPAN=$MONITOR_NVME_LIFESPAN\nMONITOR_NVME_SELFTEST=$MONITOR_NVME_SELFTEST\nEMAIL_USER=$EMAIL_USER\nTELEGRAM_USER=$TELEGRAM_USER\nCOLLATOR_ADDRESS=$COLLATOR_ADDRESS" > $DEST/env
 
-if ! IS_ALIVE
+if [[ $IS_ALIVE =~ "0" ]]
 then
   echo
   echo "#############################"
