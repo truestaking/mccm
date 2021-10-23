@@ -85,13 +85,13 @@ fi
 echo; echo
 
 ##### Is the collator process still running? #####
-if get_answer "Do you want to be alerted if your validator/collator service stops running?"
+if get_answer "Do you want to be alerted if your collator service stops running?"
     then 
 	echo; echo
-        service=$(get_input "Please enter the service name you want to monitor? This is usually moonriver or moonbeam but we didn't see those running")
+        service=$(get_input "Please enter the service name you want to monitor? This is usually moonriver or moonbeam")
         if (sudo systemctl -q is-active $service)
             then MONITOR_PROCESS=$service
-            else 
+            else
                 MONITOR_PROCESS='false'
                 echo "\"systemctl is-active $service\" failed, please check service name and rerun setup."
                 exit;exit
