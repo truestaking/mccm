@@ -218,7 +218,7 @@ sudo cp ./mccm.service /etc/systemd/system/mccm.service
 sudo systemctl enable mccm.service
 echo "installing mccm.timer"
 ## curl mccm.timer
-curl $REPO/mccm.timer
+curl $REPO/mccm.timer -O
 sudo cp ./mccm.timer /etc/systemd/system/mccm.timer
 ## curl monitor.sh
 curl $REPO/monitor.sh -O
