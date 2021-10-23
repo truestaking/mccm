@@ -56,7 +56,7 @@ Essential -> everything you need, nothing more
     - nvme heat, lifespan, and selftest
     - cpu load average
 
-Free -> backend alerting contributed by True Staking (we use it for our own servers, we might as well share)
+Free -> backend alerting contributed by True Staking
 
 You will need:
     1.  your node (validator/collator) public address
