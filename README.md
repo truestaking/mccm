@@ -27,7 +27,7 @@ Feedback is welcome, and we hope this benefits the Moonbeam Collator Community!
 
 To install, run:
 ```
-curl -s https://raw.githubusercontent.com/truestaking/mccm/main/setup.sh > setup.sh;
+curl https://raw.githubusercontent.com/truestaking/mccm/main/setup.sh -O;
 chmod +x ./setup.sh;
 ./setup.sh;
 ```
