@@ -3,7 +3,7 @@ brought to you by [True Staking](https://truestaking.com)
 
 ## What is it?
 
-Just basic Linux server monitoring. Sometimes, the simplest solution is the best solution. For all the trends, graphs, metrics, statistics you might need, there is Prometheus. For resting knowing your server has no issues, there is MCCM. We already maintain the solution and use it ourselves, so we might as well share it with the community.
+Just basic Linux server monitoring. Sometimes, the simplest solution is the best solution. For all the trends, graphs, metrics, statistics you might need, there is Prometheus. For knowing your server has no issues, there is MCCM. We already maintain the solution and use it ourselves, so we might as well share it with the community.
 
 It is free for the collator community. 
 
