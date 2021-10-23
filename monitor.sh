@@ -67,7 +67,7 @@ fi
 ### send is_alive message
 if [[ $MONITOR_IS_ALIVE =~ "true" ]]
 then
-	logger "MCCM SENDING IS ALIVE MESSAGE"
+	logger "MCCM sending is alive message"
 	sent=$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{}' https://monitor.truestaking.com/is_alive) 
 	if ! [[ $sent =~ "OK" ]]
 	then logger "MCCM failed to send heartbeat message to monitor.truestaking.com: $sent"
