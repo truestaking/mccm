@@ -31,3 +31,12 @@ curl -s https://raw.githubusercontent.com/truestaking/mccm/main/setup.sh > setup
 chmod +x ./setup.sh;
 ./setup.sh;
 ```
+
+Installing creates the folder structure:
+```
+/opt/moonbeam/mccm        #Top level folder
+...
+- env                     #Environment variables
+- monitor.sh              #Monitor script ran every 2 minutes by mccm.timer
+- update_monitor.sh       #Update script used to start/stop monitoring and change local and remote variables 
+```
