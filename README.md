@@ -12,12 +12,12 @@ In a nutshell, we create a service (mccm.service) triggered every 2 minutes by m
 Note: If the backend server doesn't receive an "I'm alive" message from your collator within 5 minutes, then it sends the "Is Alive Error" alert.
 
 Server checks include:
-    - block production warning
-    - collator service status
-    - loss of network connectivity
-    - disk space
-    - nvme heat, lifespan, and selftest
-    - cpu load average
+- block production warning
+- collator service status
+- loss of network connectivity
+- disk space
+- nvme heat, lifespan, and selftest
+- cpu load average
 
 If you want to use a commercial service like iLert -- just create an email rule to forward email from monitor.truestaking.com to your call out service.
 
