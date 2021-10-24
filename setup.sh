@@ -152,7 +152,7 @@ fi
 echo
 
 #### is there an out of memory error condition ####
-if get_answer = "Do you want to check for an out of memory error condition"
+if get_answer "Do you want to check for an out of memory error condition"
 then MONITOR_OOM_CONDITION=true
 else MONITOR_OOM_CONDITION=false
 fi
