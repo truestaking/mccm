@@ -1,8 +1,11 @@
 #!/bin/bash
 
 DEST='/opt/moonbeam/mccm'
-
 cd $DEST
+
+################################
+#### CONVENIENCE FUNCTIONS #####
+################################
 
 get_input() {
   printf "$1: " "$2" >&2; read -r answer
@@ -22,6 +25,11 @@ get_answer() {
     esac
   done
 }
+
+####################################
+#### END CONVENIENCE FUNCTIONS #####
+####################################
+
 echo; echo
 
 echo "If you wish to temporarily pause MCCM alerting, please use update_monitor.sh"

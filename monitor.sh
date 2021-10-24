@@ -44,18 +44,18 @@ send_data() {
     fi
 }
 
-###############################
-### Begin monitoring checks ###
-###############################
+#################################
+#### BEGIN MONITORING CHECKS ####
+#################################
 
-### send is_alive message
+#### send is_alive message ####
 logger "MCCM sending is alive message"
 sent=$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{}' https://monitor.truestaking.com/is_alive) 
 if ! [[ $sent =~ "OK" ]]
 then logger "MCCM failed to send heartbeat message to monitor.truestaking.com: $sent"
 fi
 
-### check process
+#### check process ####
 if ! [[ $MONITOR_PROCESS =~ "true" ]]
 then
     alert_type=process
@@ -67,7 +67,19 @@ then
     fi
 fi
 
-### check CPU
+#### check OOM condition
+if [[ $MONITOR_OOM_CONDITION =~ "true" ]]
+then
+  alert_type=oom_condition
+  if dmesg | grep oom-killer: 
+  then 
+    MEMORY_HOG=$(dmesg | grep oom-kill:)
+    alert_message="Out of memory error condition; Memory hog $MEMORY_HOG"
+    send_data
+  fi 
+fi
+
+#### check CPU ####
 if [[ $MONITOR_CPU =~ "true" ]]
 then
     alert_type=cpu
@@ -82,8 +94,7 @@ then
    fi
 fi
 
-
-### check NVME heat
+#### check NVME heat ####
 if [[ $MONITOR_NVME_HEAT =~ "true" ]]
 then
     alert_type=nvme_heat
@@ -101,8 +112,7 @@ then
     done
 fi
 
-
-### check NVME life span
+#### check NVME life span ####
 if [[ $MONITOR_NVME_LIFESPAN =~ "true" ]]
 then
     alert_type=nvme_lifespan
@@ -119,8 +129,7 @@ then
     done
 fi
 
-
-### check NVME selftest results
+#### check NVME selftest results ####
 if [[ $MONITOR_NVME_SELFTEST =~ "true" ]]
 then
     alert_type=nvme_selftest
@@ -136,8 +145,7 @@ then
     done
 fi
 
-
-### check disk space
+#### check disk space ####
 if [[ $MONITOR_DRIVE_SPACE =~ "true" ]]
 then
     alert_type=drive_space
@@ -151,3 +159,7 @@ then
         logger "MCCM disk space warning - use df -h to see available disk space"
     fi
 fi
+
+###############################
+#### END MONITORING CHECKS ####
+###############################
