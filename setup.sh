@@ -88,6 +88,7 @@ Simple -> just standard Linux command line tools
 Essential -> everything you need, nothing more
     - block production warning
     - collator service status
+    - out of memory error condition
     - loss of network connectivity
     - disk space
     - nvme heat, lifespan, and selftest

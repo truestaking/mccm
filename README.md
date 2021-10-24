@@ -15,7 +15,7 @@ Server checks include:
 
 ## How does it work?
 
-Running the installer (setup.sh) generates an api key unique to your server, and creates a service (mccm.service) triggered every 2 minutes by mccm.timer. You select what you want to monitor, and the checks are run every 2 minutes. At the beginning of each check series, an "I'm alive" message is sent (https via curl) to our backend server. When a check fails (should be rare, right?) an additional outbound https call via curl to monitor.truestaking.com submits the alert, and our backend forwards the alert to you via telegram or email.
+Running the installer (setup.sh) generates an api key unique to your server, and creates a service (mccm.service) triggered every 2 minutes by mccm.timer. You select what you want to monitor, and the checks are run every 2 minutes. At the beginning of each check series, an "I'm alive" message is sent (https via curl) to our backend server. In the (hopefully) rare event that an alert is generated, an additional outbound https call via curl to monitor.truestaking.com submits the alert, and the backend forwards the alert to you via telegram or email.
 
 Note: If our backend server doesn't receive an "I'm alive" message from your collator within 5 minutes, then it sends the "Is Alive Error" alert.
 
