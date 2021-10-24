@@ -38,9 +38,6 @@ EOF
 }
 
 send_data() {
-    echo "$alert_type"
-    echo "$alert_message"
-
     sent=$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d "$(generate_data)"  https://monitor.truestaking.com/alert) 
     if ! [[ $sent =~ "OK" ]]
     then logger "MCCM failed to send alert message to monitor.truestaking.com: $sent"
@@ -52,6 +49,7 @@ send_data() {
 ###############################
 
 
+### check process
 if ( echo $MONITOR_PROCESS | grep -qi [a-z] )
 then
     alert_type=process
@@ -158,8 +156,3 @@ then
         logger "MCCM disk space warning - use df -h to see available disk space"
     fi
 fi
-
-
-
-
-

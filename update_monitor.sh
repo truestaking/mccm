@@ -1,6 +1,5 @@
 #!/bin/bash
 
-REPO='https://raw.githubusercontent.com/truestaking/mccm/development'
 DEST='/opt/moonbeam/mccm'
 
 cd $DEST

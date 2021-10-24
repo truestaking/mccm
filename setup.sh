@@ -176,6 +176,7 @@ if get_answer "Do you want to receive collator alerts via Telegram?"
     then echo;
     TELEGRAM_USER=$(get_input "Please enter your telegram username ")
     echo "IMPORTANT: Please enter a telegram chat with our bot and message 'hi!' LINK: https://t.me/moonbeamccm_bot"
+    echo "IMPORTANT: Even if you have messaged our bot before, you must message him again"
     read -p "After you say "hi" to the mccm bot press <enter>."; echo
     else TELEGRAM_USER=''
 fi
@@ -221,15 +222,17 @@ sudo cp ./mccm.timer /etc/systemd/system/mccm.timer
 sudo curl $REPO/monitor.sh -O
 sudo cp ./monitor.sh $DEST/
 sudo chmod +x $DEST/monitor.sh
+## curl delete_account.sh
+sudo curl $REPO/delete_account.sh -O
+sudo cp ./delete_account.sh $DEST/
+sudo chmod +x $DEST/delete_account.sh
 ## curl update_monitor.sh
 sudo curl $REPO/update_monitor.sh -O
 sudo cp ./update_monitor.sh $DEST/
 sudo chmod +x $DEST/update_monitor.sh
-sudo curl $REPO/delete_account.sh -O
-sudo chmod +x $DEST/update_monitor.sh
-sudo systemctl enable mccm.timer
 echo
 echo "Starting mccm service"
+sudo systemctl enable mccm.timer
 sudo systemctl start mccm.timer
 echo
 echo "You can update your preferences or stop monitoring and alerts at anytime by running update_monitor.sh"
