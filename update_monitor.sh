@@ -151,28 +151,6 @@ echo; echo
 if ! get_answer "Do you wish to make any other adjustments to your monitoring?"; then echo; exit; fi
 echo
 
-cat << "EOF"
-
-
-Moonbeam Collator Community Monitoring
-
-Basic -> just the stuff you need near time alerting on
-
-Simple -> just standard Linux command line tools
-
-Essential -> everything you need, nothing more
-    - block production warning
-    - collator service status
-    - loss of network connectivity
-    - disk space
-    - nvme heat, lifespan, and selftest
-    - cpu load average
-
-Free -> backend alerting contributed by True Staking (we use it for our own servers, we might as well share)
-
-EOF
-echo;echo
-
 ##########################
 #### SET ENV VARIABLES ####
 ##########################
@@ -219,7 +197,7 @@ fi
 echo
 
 #### is there an out of memory error condition ####
-if get_answer = "Do you want to check for an out of memory error condition"
+if get_answer "Do you want to check for an out of memory error condition"
 then MONITOR_OOM_CONDITION=true
 else MONITOR_OOM_CONDITION=false
 fi
@@ -238,21 +216,21 @@ if get_answer "Do you want to be alerted if your CPU load average is high?"
 fi
 echo; echo
 
-#### are my NVME drives running hot? ####
+#### are the NVME drives running hot? ####
 if get_answer "Do you want to be alerted for NVME drive high temperatures? "
     then MONITOR_NVME_HEAT=true
     else MONITOR_NVME_HEAT=false
 fi
 echo; echo
 
-#### are NVME drives approaching end of life? ####
+#### are the NVME drives approaching end of life? ####
 if get_answer "Do you want to be alerted when NVME drives reach 80% anticipated lifespan?"
     then MONITOR_NVME_LIFESPAN=true
     else MONITOR_NVME_LIFESPAN=false
 fi
 echo; echo
 
-#### are NVME drives failing the selftest? ####
+#### are the NVME drives failing the selftest? ####
 if get_answer "Do you want to be alerted when an NVME drives fails the self-assessment check? "
     then MONITOR_NVME_SELFTEST=true
     else MONITOR_NVME_SELFTEST=false
