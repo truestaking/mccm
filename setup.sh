@@ -3,6 +3,10 @@
 REPO='https://raw.githubusercontent.com/truestaking/mccm/main'
 DEST='/opt/moonbeam/mccm'
 
+################################
+#### CONVENIENCE FUNCTIONS #####
+################################
+
 get_input() {
   printf "$1: " "$2" >&2; read -r answer
   if [ -z "$answer" ]; then echo "$2"; else echo "$answer"; fi
@@ -21,6 +25,39 @@ get_answer() {
     esac
   done
 }
+
+write_env() {
+  echo -ne "
+##### MCCM user variables #####
+### Uncomment the next line to set your own peak_load_avg value or leave it undefined to use the MCCM default
+#peak_load_avg=
+
+##### END MCCM user variables #####
+
+#### DO NOT EDIT BELOW THIS LINE! #####
+#### TO EDIT THESE VARIABLES, RUN update_monitor.sh ####
+#### DO NOT COPY THIS FILE or edit the API KEY ####
+API_KEY=$API_KEY
+NAME=$NAME
+MONITOR_PRODUCING_BLOCKS=$MONITOR_PRODUCING_BLOCKS
+MONITOR_PROCESS=$MONITOR_PROCESS
+MONITOR_CPU=$MONITOR_CPU
+MONITOR_DRIVE_SPACE=$MONITOR_DRIVE_SPACE
+MONITOR_NVME_HEAT=$MONITOR_NVME_HEAT
+MONITOR_NVME_LIFESPAN=$MONITOR_NVME_LIFESPAN
+MONITOR_NVME_SELFTEST=$MONITOR_NVME_SELFTEST
+EMAIL_USER=$EMAIL_USER
+TELEGRAM_USER=$TELEGRAM_USER
+COLLATOR_ADDRESS=$COLLATOR_ADDRESS
+ACTIVE=$ACTIVE
+" > $DEST/env
+}
+
+####################################
+#### END CONVENIENCE FUNCTIONS #####
+####################################
+
+
 echo
 cat << "EOF"
  #   #                       #                                   ###           ##     ##            #                  
@@ -66,9 +103,22 @@ EOF
 echo;echo
 
 if ! get_answer "Do you wish to install and configure MCCM?"; then exit; fi
+echo; echo
 
-echo;echo
-##### is my collator producing blocks? #####
+### Set active to be true by default in the setup.sh ###
+ACTIVE=true
+
+#### get name, default is hostname ###
+NAME=$(hostname)
+if get_answer "The default name is $NAME do you want to set a different name for this server account? "
+then
+  echo
+  NAME=$(get_input "Please enter the name for this service account")
+else echo
+fi
+echo
+
+##### is the collator producing blocks? #####
 COLLATOR_ADDRESS=''
 if get_answer "Do you want to be alerted if your node has failed to produce a block in the normal time window? "
     then MONITOR_PRODUCING_BLOCKS='true'
@@ -193,7 +243,7 @@ then
 fi
 
 ##### register with truestaking alert server #####
-API="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -d '{"chain": "movr", "address": "'$COLLATOR_ADDRESS'", "telegram_username": "'$TELEGRAM_USER'", "email_username": "'$EMAIL_USER'", "monitor": {"process": "'$MONITOR_PROCESS'", "nvme_heat": '$MONITOR_NVME_HEAT', "nvme_lifespan": '$MONITOR_NVME_LIFESPAN', "nvme_selftest": '$MONITOR_NVME_SELFTEST', "drive_space": '$MONITOR_DRIVE_SPACE', "cpu": '$MONITOR_CPU', "producing_blocks": '$MONITOR_PRODUCING_BLOCKS'}}' https://monitor.truestaking.com/register)"
+API="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -d '{"chain": "movr", "name": "'$NAME'", "address": "'$COLLATOR_ADDRESS'", "telegram_username": "'$TELEGRAM_USER'", "email_username": "'$EMAIL_USER'", "monitor": {"process": "'$MONITOR_PROCESS'", "nvme_heat": '$MONITOR_NVME_HEAT', "nvme_lifespan": '$MONITOR_NVME_LIFESPAN', "nvme_selftest": '$MONITOR_NVME_SELFTEST', "drive_space": '$MONITOR_DRIVE_SPACE', "cpu": '$MONITOR_CPU', "producing_blocks": '$MONITOR_PRODUCING_BLOCKS'}}' https://monitor.truestaking.com/register)"
 if ! [[ $API =~ "OK" ]]
 then
   logger "MCCM failed to obtain API KEY"
@@ -206,7 +256,7 @@ else
 fi
 
 sudo mkdir -p $DEST 2>&1 >/dev/null
-sudo echo -ne "##### MCCM user variables #####\n### Uncomment the next line to set your own peak_load_avg value or leave it undefined to use the MCCM default\n#peak_load_avg=\n\n##### END MCCM user variables #####\n\n#### DO NOT EDIT BELOW THIS LINE! #####\n#### TO EDIT THESE VARIABLES, RUN update_monitor.sh ####\n#### DO NOT COPY THIS FILE or edit the API KEY ####\nAPI_KEY=$API_KEY\nMONITOR_PRODUCING_BLOCKS=$MONITOR_PRODUCING_BLOCKS\nMONITOR_PROCESS=$MONITOR_PROCESS\nMONITOR_CPU=$MONITOR_CPU\nMONITOR_DRIVE_SPACE=$MONITOR_DRIVE_SPACE\nMONITOR_NVME_HEAT=$MONITOR_NVME_HEAT\nMONITOR_NVME_LIFESPAN=$MONITOR_NVME_LIFESPAN\nMONITOR_NVME_SELFTEST=$MONITOR_NVME_SELFTEST\nEMAIL_USER=$EMAIL_USER\nTELEGRAM_USER=$TELEGRAM_USER\nCOLLATOR_ADDRESS=$COLLATOR_ADDRESS" > $DEST/env
+write_env
 
 echo
 echo "installing mccm.service"

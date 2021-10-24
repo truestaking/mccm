@@ -1,8 +1,11 @@
 #!/bin/bash
 
 DEST='/opt/moonbeam/mccm'
-
 cd $DEST
+
+################################
+#### CONVENIENCE FUNCTIONS #####
+################################
 
 get_input() {
   printf "$1: " "$2" >&2; read -r answer
@@ -22,6 +25,39 @@ get_answer() {
     esac
   done
 }
+
+write_env() {
+  echo -ne "
+##### MCCM user variables #####
+### Uncomment the next line to set your own peak_load_avg value or leave it undefined to use the MCCM default
+#peak_load_avg=
+
+##### END MCCM user variables #####
+
+#### DO NOT EDIT BELOW THIS LINE! #####
+#### TO EDIT THESE VARIABLES, RUN update_monitor.sh ####
+#### DO NOT COPY THIS FILE or edit the API KEY ####
+API_KEY=$API_KEY
+NAME=$NAME
+MONITOR_PRODUCING_BLOCKS=$MONITOR_PRODUCING_BLOCKS
+MONITOR_PROCESS=$MONITOR_PROCESS
+MONITOR_CPU=$MONITOR_CPU
+MONITOR_DRIVE_SPACE=$MONITOR_DRIVE_SPACE
+MONITOR_NVME_HEAT=$MONITOR_NVME_HEAT
+MONITOR_NVME_LIFESPAN=$MONITOR_NVME_LIFESPAN
+MONITOR_NVME_SELFTEST=$MONITOR_NVME_SELFTEST
+EMAIL_USER=$EMAIL_USER
+TELEGRAM_USER=$TELEGRAM_USER
+COLLATOR_ADDRESS=$COLLATOR_ADDRESS
+ACTIVE=$ACTIVE
+" > $DEST/env
+}
+
+####################################
+#### END CONVENIENCE FUNCTIONS #####
+####################################
+
+
 
 cat << "EOF"
  #   #                       #                                   ###           ##     ##            #                  
@@ -47,38 +83,71 @@ fi
 
 source $DEST/env
 
-IS_ALIVE=1
-read -n1 -sp "Do you want to pause or resume MCCM alerts? p for pause, r for resume, n for no [p/r/n]: " pqn ;
-echo
-if [[ $pqn =~ "p" ]]
+#### Make sure server and local monitoring status is sycned ###
+if sudo systemctl is-active mccm.timer | grep -qi ^active
 then
-  RESP="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{"active": "false"}' https://monitor.truestaking.com/update)"
-  if [[ $RESP =~ "OK" ]]
-    then
-    IS_ALIVE=0
-    echo "Alerts from our server have been paused"
-      if sudo systemctl stop mccm.timer
-        then echo "mccm.timer has been paused"
-        else echo "failed to stop mccm.timer. Possibly it is not installed, or it was already stopped/disabled." 
-      fi
+  TIMER_ACTIVE=true
+else
+  TIMER_ACTIVE=false
+fi
+if ! [[ $ACTIVE =~ $TIMER_ACTIVE ]]
+then
+  echo "#####################"
+  if [[ $TIMER_ACTIVE =~ "true" ]]
+  then
+    echo "WARNING: mccm.timer is active but monitoring is paused on our server"
+    echo "If you want to resume monitoring, continue and enter y on the next prompt"
+    echo "If you want to disable monitoring completely, run sudo systemctl stop mccm.timer"
   else
-    echo "Server side error: $RESP"
-    exit; exit
+    echo "WARNING: mccm.timer is inactive but monitoring is active on our server"
+    echo "If you want to resume monitoring, run sudo systemctl start mccm.timer"
+    echo "If you want to disable monitoring completely, continue and enter y on the next prompt"
   fi
-elif [[ $pqn =~ "r" ]]
+  echo "#####################"
+  echo; echo
+fi
+
+#### Give the option to pause or resume monitoring
+if [[ $ACTIVE =~ "true" ]]
 then
-  RESP="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{"active": "true"}' https://monitor.truestaking.com/update)"
-  if [[ $RESP =~ "OK" ]]
-    then
-    echo "Monitoring has been resumed"
-  else
-    echo "Server side error: $RESP"
-    exit; exit
+  if get_answer "Monitoring is active, do you want to pause monitoring? "
+  then
+    echo
+    RESP="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{"active": "false"}' https://monitor.truestaking.com/update)"
+    if [[ $RESP =~ "OK" ]]
+      then
+      ACTIVE=false
+      echo "Alerts from our server have been paused"
+        if sudo systemctl stop mccm.timer
+          then echo "mccm.timer has been paused"
+          else echo "failed to stop mccm.timer. Possibly it is not installed, or it was already stopped/disabled." 
+        fi
+    else
+      echo "Server side error: $RESP"
+      exit; exit
+    fi
+    write_env
+  fi
+else
+  if get_answer "Monitoring is inactive, do you want to resume monitoring? "
+  then
+    echo
+    RESP="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{"active": "true"}' https://monitor.truestaking.com/update)"
+    if [[ $RESP =~ "OK" ]]
+      then
+      ACTIVE=true
+      sudo systemctl start mccm.timer
+      echo "Monitoring has been resumed"
+    else
+      echo "Server side error: $RESP"
+      exit; exit
+    fi
+    write_env
   fi
 fi
-echo
+echo; echo
 
-if ! get_answer "Do you wish to make any other adjustments to your monitoring?"; then exit; fi
+if ! get_answer "Do you wish to make any other adjustments to your monitoring?"; then echo; exit; fi
 echo
 
 cat << "EOF"
@@ -238,7 +307,7 @@ echo
 sudo mkdir -p $DEST 2>&1 >/dev/null
 sudo echo -ne "##### MCCM user variables #####\n### Uncomment the next line to set your own peak_load_avg value or leave it undefined to use the MCCM default\n#peak_load_avg=\n\n##### END MCCM user variables #####\n\n#### DO NOT EDIT BELOW THIS LINE! #####\nAPI_KEY=$API_KEY\nMONITOR_PRODUCING_BLOCKS=$MONITOR_PRODUCING_BLOCKS\nMONITOR_IS_ALIVE=$MONITOR_IS_ALIVE\nMONITOR_PROCESS=$MONITOR_PROCESS\nMONITOR_CPU=$MONITOR_CPU\nMONITOR_DRIVE_SPACE=$MONITOR_DRIVE_SPACE\nMONITOR_NVME_HEAT=$MONITOR_NVME_HEAT\nMONITOR_NVME_LIFESPAN=$MONITOR_NVME_LIFESPAN\nMONITOR_NVME_SELFTEST=$MONITOR_NVME_SELFTEST\nEMAIL_USER=$EMAIL_USER\nTELEGRAM_USER=$TELEGRAM_USER\nCOLLATOR_ADDRESS=$COLLATOR_ADDRESS" > $DEST/env
 
-if [[ $IS_ALIVE =~ "0" ]]
+if [[ $ACTIVE =~ "false" ]]
 then
   echo
   echo "#############################"

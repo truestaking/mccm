@@ -56,13 +56,13 @@ then logger "MCCM failed to send heartbeat message to monitor.truestaking.com: $
 fi
 
 ### check process
-if ( echo $MONITOR_PROCESS | grep -qi [a-z] )
+if ! [[ $MONITOR_PROCESS =~ "true" ]]
 then
     alert_type=process
     logger "MCCM service status checked"
     if ( ! systemctl is-active $MONITOR_PROCESS >/dev/null 2>&1 )
     then 
-        alert_message="$HOST $MONITOR_PROCESS is dead"
+        alert_message="$MONITOR_PROCESS is dead"
         send_data
     fi
 fi
@@ -75,7 +75,7 @@ then
     load_check=$(echo "$cpu_load_avg > $peak_load_avg" | bc)
     if (( $load_check > 0 )) 
     then
-        alert_message="$HOST CPU load avg is $cpu_load_avg"
+        alert_message="CPU load avg is $cpu_load_avg"
         send_data
         logger "MCCM warning CPU load is $cpu_load_avg"
         
@@ -93,7 +93,7 @@ then
         high_temp_time=$(smartctl -a $i | grep "Warning  Comp. Temperature Time:" | cut -f 2 -d ":" | sed 's/[ \t]*//' | cut -f 1 -d "%" | cut -f 1 -d ".")
         if (( high_temp_time > 0 ))
 	then
-            alert_message="$HOST NVME heat alert $i"
+            alert_message="NVME heat alert $i"
             send_data 
             logger "MCCM NVME heat warning - use smartctl -a $i and view the Comp. Temperature Time"
         fi
@@ -112,7 +112,7 @@ then
         used=$(smartctl -a $i | grep percentage_used | cut -f 2 -d ":" | sed 's/[ \t]*//' | cut -f 1 -d "%" | cut -f 1 -d ".")
         if (( used > 80 ))
         then
-           alert_message="$HOST NVME lifespan warning $i"
+           alert_message="NVME lifespan warning $i"
            send_data
            logger "MCCM NVME warning - use smartctl -a $i to view remaining lifespan"
         fi
@@ -129,7 +129,7 @@ then
     do
         if ( ! smartctl -a $i | grep self-assessment | grep -q PASSED )
         then
-            alert_message="$HOST NVME selftest failure $i"
+            alert_message="NVME selftest failure $i"
             send_data
             logger "MCCM NVME warning - use smartctl -a $i to view selftest status"
         fi
@@ -146,7 +146,7 @@ then
     used=$(df --output=pcent,target | grep -v snap | grep -v Mounted | sed "s/[ \t]*//" | cut -f 1 -d "%" | sort -n | tail -n 1)
     if(( $used >= $ALERT ))
     then 
-        alert_message="$HOST drive space warning"
+        alert_message="drive space warning"
         send_data
         logger "MCCM disk space warning - use df -h to see available disk space"
     fi
