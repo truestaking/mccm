@@ -48,6 +48,12 @@ send_data() {
 ### Begin monitoring checks ###
 ###############################
 
+### send is_alive message
+logger "MCCM sending is alive message"
+sent=$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{}' https://monitor.truestaking.com/is_alive) 
+if ! [[ $sent =~ "OK" ]]
+then logger "MCCM failed to send heartbeat message to monitor.truestaking.com: $sent"
+fi
 
 ### check process
 if ( echo $MONITOR_PROCESS | grep -qi [a-z] )
@@ -59,17 +65,6 @@ then
         alert_message="$HOST $MONITOR_PROCESS is dead"
         send_data
     fi
-fi
-
-
-### send is_alive message
-if [[ $MONITOR_IS_ALIVE =~ "true" ]]
-then
-	logger "MCCM sending is alive message"
-	sent=$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{}' https://monitor.truestaking.com/is_alive) 
-	if ! [[ $sent =~ "OK" ]]
-	then logger "MCCM failed to send heartbeat message to monitor.truestaking.com: $sent"
-        fi
 fi
 
 ### check CPU
