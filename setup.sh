@@ -153,9 +153,10 @@ echo
 
 #### is there an out of memory error condition ####
 if get_answer = "Do you want to check for an out of memory error condition"
-then OOM_CONDITION=true
-else OOM_CONDITION=false
+then MONITOR_OOM_CONDITION=true
+else MONITOR_OOM_CONDITION=false
 fi
+echo; echo
 
 #### is my CPU going nuts? ####
 if get_answer "Do you want to be alerted if your CPU load average is high?"
@@ -277,23 +278,23 @@ echo
 echo "installing mccm.service"
 ## curl mccm.service
 sudo curl $REPO/mccm.service -O 
-sudo cp ./mccm.service /etc/systemd/system/mccm.service
+sudo mv ./mccm.service /etc/systemd/system/mccm.service
 sudo systemctl enable mccm.service
 echo "installing mccm.timer"
 ## curl mccm.timer
 sudo curl $REPO/mccm.timer -O
-sudo cp ./mccm.timer /etc/systemd/system/mccm.timer
+sudo mv ./mccm.timer /etc/systemd/system/mccm.timer
 ## curl monitor.sh
 sudo curl $REPO/monitor.sh -O
-sudo cp ./monitor.sh $DEST/
+sudo mv ./monitor.sh $DEST/
 sudo chmod +x $DEST/monitor.sh
 ## curl delete_account.sh
 sudo curl $REPO/delete_account.sh -O
-sudo cp ./delete_account.sh $DEST/
+sudo mv ./delete_account.sh $DEST/
 sudo chmod +x $DEST/delete_account.sh
 ## curl update_monitor.sh
 sudo curl $REPO/update_monitor.sh -O
-sudo cp ./update_monitor.sh $DEST/
+sudo mv ./update_monitor.sh $DEST/
 sudo chmod +x $DEST/update_monitor.sh
 echo
 echo "Starting mccm service"

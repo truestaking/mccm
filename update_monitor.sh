@@ -220,9 +220,10 @@ echo
 
 #### is there an out of memory error condition ####
 if get_answer = "Do you want to check for an out of memory error condition"
-then OOM_CONDITION=true
-else OOM_CONDITION=false
+then MONITOR_OOM_CONDITION=true
+else MONITOR_OOM_CONDITION=false
 fi
+echo; echo
 
 #### is my CPU going nuts? ####
 if get_answer "Do you want to be alerted if your CPU load average is high?"
