@@ -5,12 +5,6 @@ brought to you by [True Staking](https://truestaking.com)
 
 Just basic Linux server monitoring. Sometimes, the simplest solution is the best solution. For all the trends, graphs, metrics, statistics you might need, there is Prometheus. For knowing your server has no issues, there is MCCM.
 
-It is free for the collator community. 
-
-In a nutshell, we create a service (mccm.service) triggered every 2 minutes by mccm.timer. You select what you want to monitor, and the checks are run every 2 minutes. At the beginning of each check series, an "I'm alive" message is sent (https via curl) to the backend server. When a check fails (should be rare, right?) an additional outbound https call via curl to monitor.truestaking.com submits the alert, and our backend forwards the alert to you via telegram or email.
-
-Note: If the backend server doesn't receive an "I'm alive" message from your collator within 5 minutes, then it sends the "Is Alive Error" alert.
-
 Server checks include:
 - block production warning
 - collator service status
@@ -19,7 +13,15 @@ Server checks include:
 - nvme heat, lifespan, and selftest
 - cpu load average
 
-If you want to use a commercial service like iLert -- just create an email rule to forward email from monitor.truestaking.com to your call out service.
+## How does it work?
+
+Running the installer (setup.sh) generates an api key unique to your server, and creates a service (mccm.service) triggered every 2 minutes by mccm.timer. You select what you want to monitor, and the checks are run every 2 minutes. At the beginning of each check series, an "I'm alive" message is sent (https via curl) to our backend server. When a check fails (should be rare, right?) an additional outbound https call via curl to monitor.truestaking.com submits the alert, and our backend forwards the alert to you via telegram or email.
+
+Note: If our backend server doesn't receive an "I'm alive" message from your collator within 5 minutes, then it sends the "Is Alive Error" alert.
+
+Each server should have a unqiue api key. Run the installer (setup.sh) on each server you want to have monitoring on. 
+
+Monitoring preferences can be update and monitoring can be paused using update_monitor.sh. A server account can be deleted and all monitoring stopped using delete_account.sh.
 
 Feedback is welcome, and we hope this benefits the Moonbeam Collator Community!
 
@@ -39,5 +41,5 @@ Installing creates the folder structure:
 - env                     # Environment variables
 - monitor.sh              # Monitor script ran every 2 minutes by mccm.service, triggered by mccm.timer
 - update_monitor.sh       # Update script used to start/stop monitoring and change local and remote variables 
-- delete_account.sh       # Remove a machine account (requires server API key)
+- delete_account.sh       # Remove a server account (requires server API key)
 ```
