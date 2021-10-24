@@ -8,6 +8,7 @@ Just basic Linux server monitoring. Sometimes, the simplest solution is the best
 Server checks include:
 - block production warning
 - collator service status
+- out of memory error condition
 - loss of network connectivity
 - disk space
 - nvme heat, lifespan, and selftest
