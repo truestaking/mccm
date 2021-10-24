@@ -68,7 +68,7 @@ echo;echo
 if ! get_answer "Do you wish to install and configure MCCM?"; then exit; fi
 
 echo;echo
-##### Is my collator producing blocks? #####
+##### is my collator producing blocks? #####
 COLLATOR_ADDRESS=''
 if get_answer "Do you want to be alerted if your node has failed to produce a block in the normal time window? "
     then MONITOR_PRODUCING_BLOCKS='true'
@@ -79,7 +79,7 @@ if get_answer "Do you want to be alerted if your node has failed to produce a bl
 fi
 echo
 
-##### Is the collator process still running? #####
+##### is the collator process still running? #####
 if get_answer "Do you want to be alerted if your collator service stops running?"
     then 
 	echo
@@ -96,7 +96,7 @@ if get_answer "Do you want to be alerted if your collator service stops running?
 fi
 echo
 
-##### Is my CPU going nuts? #####
+##### is my CPU going nuts? #####
 if get_answer "Do you want to be alerted if your CPU load average is high?"
     then MONITOR_CPU='true'
         if ! sudo apt list --installed 2>/dev/null | grep -qi util-linux
@@ -109,35 +109,35 @@ if get_answer "Do you want to be alerted if your CPU load average is high?"
 fi
 echo; echo
 
-##### Are my NVME drives running hot? #####
+##### are my NVME drives running hot? #####
 if get_answer "Do you want to be alerted for NVME drive high temperatures? "
     then MONITOR_NVME_HEAT='true'
     else MONITOR_NVME_HEAT='false'
 fi
 echo; echo
 
-##### Are NVME drives approaching end of life? #####
+##### are NVME drives approaching end of life? #####
 if get_answer "Do you want to be alerted when NVME drives reach 80% anticipated lifespan?"
     then MONITOR_NVME_LIFESPAN='true'
     else MONITOR_NVME_LIFESPAN='false'
 fi
 echo; echo
 
-##### Are NVME drives failing the selftest? #####
+##### are NVME drives failing the selftest? #####
 if get_answer "Do you want to be alerted when an NVME drives fails the self-assessment check? "
     then MONITOR_NVME_SELFTEST='true'
     else MONITOR_NVME_SELFTEST='false'
 fi
 echo; echo
 
-##### Are any of the disks at 90%+ capacity? #####
+##### are any of the disks at 90%+ capacity? #####
 if get_answer "Do you want to be alerted when any drive reaches 90% capacity?"
     then MONITOR_DRIVE_SPACE='true'
     else MONITOR_DRIVE_SPACE='false'
 fi
 echo; echo
 
-##### Do we need to install NVME utilities? #####
+##### do we need to install NVME utilities? #####
 if echo $MONITOR_NVME_HEAT,$MONITOR_NVME_LIFESPAN,$MONITOR_NVME_SELFTEST | grep -qi true
     then
         echo "checking for NVME utilities..."
@@ -162,7 +162,7 @@ if echo $MONITOR_NVME_HEAT,$MONITOR_NVME_LIFESPAN,$MONITOR_NVME_SELFTEST | grep 
 	echo;
 fi
 
-##### ALert me via email? #####
+##### alert me via email? #####
 if get_answer "Do you want to receive collator alerts via email?" 
     then echo;
     EMAIL_USER=$(get_input "Please enter an email address for receiving alerts ")
@@ -170,7 +170,7 @@ if get_answer "Do you want to receive collator alerts via email?"
 fi
 echo
 
-##### Alert me via TG #####
+##### alert me via TG #####
 TELEGRAM_USER="";
 if get_answer "Do you want to receive collator alerts via Telegram?"
     then echo;
