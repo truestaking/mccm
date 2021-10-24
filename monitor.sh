@@ -71,9 +71,9 @@ fi
 if [[ $MONITOR_OOM_CONDITION =~ "true" ]]
 then
   alert_type=oom_condition
-  if dmesg | grep oom-killer: 
+  if dmesg | grep oom-killer 
   then 
-    MEMORY_HOG=$(dmesg | grep oom-kill:)
+    MEMORY_HOG=$( dmesg | grep oom-kill: )
     alert_message="Out of memory error condition; Memory hog $MEMORY_HOG"
     send_data
   fi 
