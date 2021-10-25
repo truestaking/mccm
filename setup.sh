@@ -27,6 +27,28 @@ get_answer() {
   done
 }
 
+generate_data(){
+cat << EOF
+{
+"chain": "movr",
+"name": "$NAME",
+"address": "$COLLATOR_ADDRESS",
+"telegram_username": "$TELEGRAM_USER",
+"email_username": "$EMAIL_USER",
+"monitor": {
+  "process": "$MONITOR_PROCESS",
+  "cpu": "$MONITOR_CPU",
+  "nvme_heat": "$MONITOR_NVME_HEAT",
+  "nvme_lifespan": "$MONITOR_NVME_LIFESPAN",
+  "nvme_selftest": "$MONITOR_NVME_SELFTEST",
+  "drive_space": "$MONITOR_DRIVE_SPACE",
+  "producing_blocks": "$MONITOR_PRODUCING_BLOCKS",
+  "oom_condition": "$MONITOR_OOM_CONDITION"
+  }
+}
+EOF
+}
+
 write_env() {
   echo -ne "
 ##### MCCM user variables #####
@@ -261,7 +283,7 @@ fi
 ###############################
 
 #### register with truestaking alert server ####
-API="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -d '{"chain": "movr", "name": "'$NAME'", "address": "'$COLLATOR_ADDRESS'", "telegram_username": "'$TELEGRAM_USER'", "email_username": "'$EMAIL_USER'", "monitor": {"process": "'$MONITOR_PROCESS'", "nvme_heat": '$MONITOR_NVME_HEAT', "nvme_lifespan": '$MONITOR_NVME_LIFESPAN', "nvme_selftest": '$MONITOR_NVME_SELFTEST', "drive_space": '$MONITOR_DRIVE_SPACE', "cpu": '$MONITOR_CPU', "producing_blocks": '$MONITOR_PRODUCING_BLOCKS', "oom_condition": '$MONITOR_OOM_CONDITION'}}' https://monitor.truestaking.com/register)"
+API="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -d "$(generate_data)" https://monitor.truestaking.com/register)"
 if ! [[ $API =~ "OK" ]]
 then
   logger "MCCM failed to obtain API KEY"

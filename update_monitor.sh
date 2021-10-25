@@ -28,6 +28,28 @@ get_answer() {
   done
 }
 
+generate_data(){
+cat << EOF
+{
+"chain": "movr",
+"name": "$NAME",
+"address": "$COLLATOR_ADDRESS",
+"telegram_username": "$TELEGRAM_USER",
+"email_username": "$EMAIL_USER",
+"monitor": {
+  "process": "$MONITOR_PROCESS",
+  "cpu": "$MONITOR_CPU",
+  "nvme_heat": "$MONITOR_NVME_HEAT",
+  "nvme_lifespan": "$MONITOR_NVME_LIFESPAN",
+  "nvme_selftest": "$MONITOR_NVME_SELFTEST",
+  "drive_space": "$MONITOR_DRIVE_SPACE",
+  "producing_blocks": "$MONITOR_PRODUCING_BLOCKS",
+  "oom_condition": "$MONITOR_OOM_CONDITION"
+  }
+}
+EOF
+}
+
 write_env() {
   echo -ne "
 ##### MCCM user variables #####
@@ -279,7 +301,6 @@ fi
 echo
 
 #### alert via TG ####
-TELEGRAM_USER="";
 if get_answer "Do you want to receive collator alerts via Telegram?"
     then echo;
     TELEGRAM_USER=$(get_input_default "Please enter your telegram username " $TELEGRAM_USER)
@@ -305,7 +326,7 @@ fi
 ###############################
 
 ##### update truestaking alert server #####
-RESP="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d '{"chain": "movr", "address": "'$COLLATOR_ADDRESS'", "telegram_username": "'$TELEGRAM_USER'", "email_username": "'$EMAIL_USER'", "monitor": {"process": "'$MONITOR_PROCESS'", "nvme_heat": '$MONITOR_NVME_HEAT', "nvme_lifespan": '$MONITOR_NVME_LIFESPAN', "nvme_selftest": '$MONITOR_NVME_SELFTEST', "drive_space": '$MONITOR_DRIVE_SPACE', "cpu": '$MONITOR_CPU', "producing_blocks": '$MONITOR_PRODUCING_BLOCKS', "oom_condition": '$MONITOR_OOM_CONDITION'}}' https://monitor.truestaking.com/update)"
+RESP="$('/usr/bin/curl' -s -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer '$API_KEY'' -d "$(generate_data)" https://monitor.truestaking.com/update)"
 if ! [[ $RESP =~ "OK" ]]
 then 
     echo "We encountered an error: $RESP "
