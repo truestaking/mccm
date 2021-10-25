@@ -8,10 +8,11 @@ DEST='/opt/moonbeam/mccm'
 ################################
 
 get_input() {
-  printf "$1: " "$2" >&2; read -r answer
-  if [ -z "$answer" ]; then echo "$2"; else echo "$answer"; fi
+  printf "$1: " >&2; read -r answer
+  echo $answer
 }
 
+#Courtesy of cardano guild tools
 get_answer() {
   printf "%s (y/n): " "$*" >&2; read -n1 -r answer
   while : 

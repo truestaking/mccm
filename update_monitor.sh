@@ -7,11 +7,13 @@ cd $DEST
 #### CONVENIENCE FUNCTIONS #####
 ################################
 
-get_input() {
-  printf "$1: " "$2" >&2; read -r answer
+#Courtesy of cardano guild tools
+get_input_default() {
+  printf "%s (default: %s): " "$1" "$2" >&2; read -r answer
   if [ -z "$answer" ]; then echo "$2"; else echo "$answer"; fi
 }
 
+#Courtesy of cardano guild tools
 get_answer() {
   printf "%s (y/n): " "$*" >&2; read -n1 -r answer
   while : 
@@ -149,7 +151,7 @@ fi
 echo; echo
 
 if ! get_answer "Do you wish to make any other adjustments to your monitoring?"; then echo; exit; fi
-echo
+echo; echo
 
 ##########################
 #### SET ENV VARIABLES ####
@@ -159,11 +161,10 @@ echo
 ACTIVE=true
 
 #### get name, default is hostname ###
-NAME=$(hostname)
-if get_answer "The default name is $NAME do you want to set a different name for this server account? "
+if get_answer "The current name is $NAME do you want to set a different name for this server account? "
 then
   echo
-  NAME=$(get_input "Please enter the name for this service account")
+  NAME=$(get_input_default "Please enter the name for this service account" $NAME)
 else echo
 fi
 echo
@@ -173,7 +174,7 @@ COLLATOR_ADDRESS=''
 if get_answer "Do you want to be alerted if your node has failed to produce a block in the normal time window? "
     then MONITOR_PRODUCING_BLOCKS=true
     echo
-    COLLATOR_ADDRESS=$(get_input "Please enter your node public address. Paste and press <ENTER> ")
+    COLLATOR_ADDRESS=$(get_input_default "Please enter your node public address. Paste and press <ENTER> " $COLLATOR_ADDRESS)
     else MONITOR_PRODUCING_BLOCKS=false
     echo
 fi
@@ -183,7 +184,7 @@ echo
 if get_answer "Do you want to be alerted if your collator service stops running?"
     then 
 	echo
-        service=$(get_input "Please enter the service name you want to monitor? This is usually moonriver or moonbeam")
+        service=$(get_input_default "Please enter the service name you want to monitor? This is usually moonriver or moonbeam" $MONITOR_PROCESS)
         if (sudo systemctl -q is-active $service)
             then MONITOR_PROCESS=$service
             else
@@ -272,7 +273,7 @@ fi
 #### alert via email? ####
 if get_answer "Do you want to receive collator alerts via email?" 
     then echo;
-    EMAIL_USER=$(get_input "Please enter an email address for receiving alerts ")
+    EMAIL_USER=$(get_input_default "Please enter an email address for receiving alerts " $EMAIL_USER)
     else EMAIL_USER=''
 fi
 echo
@@ -281,7 +282,7 @@ echo
 TELEGRAM_USER="";
 if get_answer "Do you want to receive collator alerts via Telegram?"
     then echo;
-    TELEGRAM_USER=$(get_input "Please enter your telegram username ")
+    TELEGRAM_USER=$(get_input_default "Please enter your telegram username " $TELEGRAM_USER)
     echo "IMPORTANT: Please enter a telegram chat with our bot and message 'hi!' LINK: https://t.me/moonbeamccm_bot"
     echo "IMPORTANT: Even if you have messaged our bot before, you must message him again"
     read -p "After you say "hi" to the mccm bot press <enter>."; echo

@@ -56,7 +56,7 @@ then logger "MCCM failed to send heartbeat message to monitor.truestaking.com: $
 fi
 
 #### check process ####
-if ! [[ $MONITOR_PROCESS =~ "true" ]]
+if ! [[ $MONITOR_PROCESS =~ "false" ]]
 then
     alert_type=process
     logger "MCCM service status checked"
