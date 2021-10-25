@@ -74,7 +74,7 @@ EMAIL_USER=$EMAIL_USER
 TELEGRAM_USER=$TELEGRAM_USER
 COLLATOR_ADDRESS=$COLLATOR_ADDRESS
 ACTIVE=$ACTIVE
-" | sudo dd of=$DEST/env
+" | sudo dd of=$DEST/env status=none
 }
 
 ####################################
