@@ -193,7 +193,6 @@ fi
 echo
 
 #### is the collator producing blocks? ####
-COLLATOR_ADDRESS=''
 if get_answer "Do you want to be alerted if your node has failed to produce a block in the normal time window? "
     then MONITOR_PRODUCING_BLOCKS=true
     echo
