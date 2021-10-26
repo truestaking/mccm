@@ -44,3 +44,5 @@ Installing creates the folder structure:
 - update_monitor.sh       # Update script used to start/stop monitoring and change local and remote variables 
 - delete_account.sh       # Remove a server account (requires server API key)
 ```
+
+Tested on Ubuntu 20.04
