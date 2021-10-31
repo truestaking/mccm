@@ -3,7 +3,7 @@ brought to you by [True Staking](https://truestaking.com)
 
 ## What is it?
 
-Just basic Linux server monitoring. Sometimes, the simplest solution is the best solution. For all the trends, graphs, metrics, statistics you might need, there is Prometheus. For knowing your server has no issues, there is MCCM.
+Just basic Linux server monitoring. Sometimes, the simplest solution is the best solution. For all the trends, graphs, metrics, statistics you might need, there is Prometheus. For knowing your collator has no issues, there is MCCM.
 
 Server checks include:
 - block production warning
@@ -34,6 +34,8 @@ curl https://raw.githubusercontent.com/truestaking/mccm/main/setup.sh -O;
 chmod +x ./setup.sh;
 ./setup.sh;
 ```
+The install will guide your through the setup with a series of y/n questions, and accept your collator address (block production check), email address (notifications) and telegram id (notifications). When finished, you will find all the files in /opt/moonbeam/mccm . The ENV file reflects your configuration choices -- please do not edit that file directly. Instead, use update_monitor.sh to change your monitoring configuration.
+
 
 Installing creates the folder structure:
 ```
@@ -45,4 +47,12 @@ Installing creates the folder structure:
 - delete_account.sh       # Remove a server account (requires server API key)
 ```
 
-Tested on Ubuntu 20.04
+**Tested on Ubuntu 20.04**
+
+Please don't hesitate to reach out with questions, concerns, or suggestions!
+
+
+
+
+
+
