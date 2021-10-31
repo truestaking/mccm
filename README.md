@@ -29,11 +29,11 @@ Feedback is welcome, and we hope this benefits the Moonbeam Collator Community!
 ## Install 
 
 To install, run:
-```
-curl https://raw.githubusercontent.com/truestaking/mccm/main/setup.sh -O;
-chmod +x ./setup.sh;
-./setup.sh;
-```
+
+    curl https://raw.githubusercontent.com/truestaking/mccm/main/setup.sh -O
+    chmod +x ./setup.sh
+    ./setup.sh
+
 The install will guide your through the setup with a series of y/n questions, and accept your collator address (block production check), email address (notifications) and telegram id (notifications). When finished, you will find all the files in /opt/moonbeam/mccm . The ENV file reflects your configuration choices -- please do not edit that file directly. Instead, use update_monitor.sh to change your monitoring configuration.
 
 
