@@ -51,8 +51,7 @@ Installing creates the folder structure:
 
 Please don't hesitate to reach out with questions, concerns, or suggestions!
 
-
-
+![MCCM_splash](https://user-images.githubusercontent.com/19353330/139567789-1a05d6c5-4dde-42df-9cfc-93497af408e7.jpg)
 
 
 
