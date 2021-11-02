@@ -34,7 +34,7 @@ To install, run:
     chmod +x ./setup.sh
     ./setup.sh
 
-The install will guide your through the setup with a series of y/n questions, and accept your collator address (block production check), email address (notifications) and telegram id (notifications). When finished, you will find all the files in /opt/moonbeam/mccm . The ENV file reflects your configuration choices -- please do not edit that file directly. Instead, use update_monitor.sh to change your monitoring configuration.
+The install will guide your through the setup with a series of y/n questions, and accept your collator address *(block production check)*, email address *(notifications)* and telegram id *(notifications)*. When finished, you will find all the files in /opt/moonbeam/mccm . The ENV file reflects your configuration choices -- please do **not** edit that file directly. Instead, use update_monitor.sh to change your monitoring configuration.
 
 
 Installing creates the folder structure:
