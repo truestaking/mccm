@@ -304,9 +304,9 @@ echo
 if get_answer "Do you want to receive collator alerts via Telegram?"
     then echo;
     TELEGRAM_USER=$(get_input_default "Please enter your telegram username " $TELEGRAM_USER)
-    echo "IMPORTANT: Please enter a telegram chat with our bot and message 'hi!' LINK: https://t.me/moonbeamccm_bot"
-    echo "IMPORTANT: Even if you have messaged our bot before, you must message him again"
-    read -p "After you say "hi" to the mccm bot press <enter>."; echo
+    echo "IMPORTANT: Please enter a telegram chat with our bot 'hi!' LINK: https://t.me/moonbeamccm_bot"
+    echo "IMPORTANT: If you are already in a telegram chat with our bot you do not have to create a new one. Press <enter>"
+    read -p "After you join a chat with our bot, return here and press <enter>."; echo
     else TELEGRAM_USER=''
 fi
 if ( echo $TELEGRAM_USER | grep -qi [A-Za-z0-9] ) 
