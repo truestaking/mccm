@@ -30,7 +30,7 @@ get_answer() {
 generate_data(){
 cat << EOF
 {
-"chain": "movr",
+"chain": "$CHAIN",
 "name": "$NAME",
 "address": "$COLLATOR_ADDRESS",
 "telegram_username": "$TELEGRAM_USER",
@@ -147,6 +147,13 @@ then
 else echo
 fi
 echo
+
+#### get chain ####
+if get_answer "Is this on the Moonbeam network (yes for Moonbeam, no for Moonriver)"
+then CHAIN=glmr
+else CHAIN=movr
+fi
+echo; echo
 
 #### is the collator producing blocks? ####
 COLLATOR_ADDRESS=''
