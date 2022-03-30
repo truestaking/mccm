@@ -1,5 +1,6 @@
 # Moonbeam Collator Community Monitoring
 brought to you by [True Staking](https://truestaking.com)
+video overview: https://www.youtube.com/watch?v=eLAjFB4bQHo
 
 ## What is it?
 
